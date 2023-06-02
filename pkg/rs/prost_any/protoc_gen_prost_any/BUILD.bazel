@@ -1,0 +1,29 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "protoc_gen_prost_any",
+    srcs = [
+        "generator.rs",
+        "main.rs",
+    ],
+    data = [
+        "@rules_rust//rust/toolchain:current_rustfmt_toolchain",
+    ],
+    rustc_env = {
+        "RUSTFMT": "$(rlocationpath @rules_rust//rust/toolchain:current_rustfmt_toolchain)",
+    },
+    deps = [
+        "//pkg/rs/prost_any",
+        "@crate_index//:anyhow",
+        "@crate_index//:heck",
+        "@crate_index//:proc-macro2",
+        "@crate_index//:prost",
+        "@crate_index//:prost-build",
+        "@crate_index//:prost-types",
+        "@crate_index//:protoc-gen-prost",
+        "@crate_index//:quote",
+        "@rules_rust//tools/runfiles",
+    ],
+)

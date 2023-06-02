@@ -1,0 +1,56 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@npm//:@bufbuild/protoc-gen-connect-web/package_json.bzl", _connect_web_bin_factories = "bin")
+load("@npm//:@bufbuild/protoc-gen-es/package_json.bzl", _es_bin_factories = "bin")
+load("@rules_proto_grpc//:defs.bzl", "proto_plugin")
+
+package(default_visibility = ["//visibility:private"])
+
+_connect_web_bin_factories.protoc_gen_connect_web_binary(
+    name = "protoc-gen-connect-web",
+    data = [
+        "//:node_modules/@bufbuild/protobuf",
+    ],
+)
+
+proto_plugin(
+    name = "connect_web_compile",
+    env = {
+        "BAZEL_BINDIR": "{bindir}",
+    },
+    output_directory = True,
+    protoc_plugin_name = "connect_web",
+    tool = "//rules/proto/connect_web:protoc-gen-connect-web",
+    use_built_in_shell_environment = False,
+    visibility = ["//visibility:public"],
+)
+
+_es_bin_factories.protoc_gen_es_binary(
+    name = "protoc-gen-es",
+    data = [
+        "//:node_modules/@bufbuild/protobuf",
+    ],
+)
+
+proto_plugin(
+    name = "es_compile",
+    env = {
+        "BAZEL_BINDIR": "{bindir}",
+    },
+    output_directory = True,
+    protoc_plugin_name = "es",
+    tool = "//rules/proto/connect_web:protoc-gen-es",
+    use_built_in_shell_environment = False,
+    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "bzl",
+    srcs = ["connect_web_library.bzl"],
+    visibility = ["//rules/proto:__pkg__"],
+)
+
+sh_binary(
+    name = "build_indexes",
+    srcs = ["build_indexes.sh"],
+    visibility = ["//visibility:public"],
+)

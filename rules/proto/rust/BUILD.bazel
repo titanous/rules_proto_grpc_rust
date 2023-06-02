@@ -1,0 +1,76 @@
+load("@rules_proto_grpc//:defs.bzl", "proto_plugin")
+
+proto_plugin(
+    name = "prost_plugin",
+    exclusions = [
+        "google/protobuf",
+    ],
+    options = [
+        "file_descriptor_set",
+        "compile_well_known_types",
+        "extern_path=.google.protobuf=::pbjson_types",
+    ],
+    output_directory = True,
+    separate_options_flag = True,
+    tool = "@crate_index//:protoc-gen-prost__protoc-gen-prost",
+    visibility = ["//visibility:public"],
+)
+
+proto_plugin(
+    name = "tonic_plugin",
+    exclusions = [
+        "google/protobuf",
+    ],
+    options = [
+        "no_include",
+        "compile_well_known_types",
+        "extern_path=.google.protobuf=::pbjson_types",
+    ],
+    output_directory = True,
+    separate_options_flag = True,
+    tool = "@crate_index//:protoc-gen-tonic__protoc-gen-tonic",
+    visibility = ["//visibility:public"],
+)
+
+proto_plugin(
+    name = "serde_plugin",
+    exclusions = [
+        "google/protobuf",
+    ],
+    options = [
+        "no_include",
+        "preserve_proto_field_names",
+        "extern_path=.google.protobuf=::pbjson_types",
+    ],
+    output_directory = True,
+    separate_options_flag = True,
+    tool = "@crate_index//:protoc-gen-prost-serde__protoc-gen-prost-serde",
+    visibility = ["//visibility:public"],
+)
+
+proto_plugin(
+    name = "crate_plugin",
+    exclusions = [
+        "google/protobuf",
+    ],
+    options = ["no_features"],
+    output_directory = True,
+    tool = "@crate_index//:protoc-gen-prost-crate__protoc-gen-prost-crate",
+    visibility = ["//visibility:public"],
+)
+
+proto_plugin(
+    name = "any_plugin",
+    exclusions = [
+        "google/protobuf",
+    ],
+    output_directory = True,
+    tool = "//pkg/rs/prost_any/protoc_gen_prost_any",
+    visibility = ["//visibility:public"],
+)
+
+sh_binary(
+    name = "fixer",
+    srcs = ["fixer.sh"],
+    visibility = ["//visibility:public"],
+)

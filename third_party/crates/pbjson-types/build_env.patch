@@ -1,0 +1,31 @@
+From 19f0c4b313081c7c231059b9b943b9410ddf6b87 Mon Sep 17 00:00:00 2001
+From: Jonathan Rudenberg <jonathan@titanous.com>
+Date: Sat, 11 Feb 2023 01:56:48 +0000
+Subject: [PATCH] fix: read CARGO_MANIFEST_DIR at runtime
+
+Bazel uses a sandbox to build crates, and the absolute path used can
+differ between building the build.rs and running it.
+
+Instead of compiling in the value of CARGO_MANIFEST_DIR, read it at
+runtime to get the correct directory.
+
+Refs: https://github.com/bazelbuild/rules_rust/issues/878
+---
+ pbjson-types/build.rs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/pbjson-types/build.rs b/pbjson-types/build.rs
+index 99bebcc..eed1689 100644
+--- a/pbjson-types/build.rs
++++ b/pbjson-types/build.rs
+@@ -8,7 +8,9 @@ type Error = Box<dyn std::error::Error>;
+ type Result<T, E = Error> = std::result::Result<T, E>;
+ 
+ fn main() -> Result<()> {
+-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
++    let root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect(
++        "The `CARGO_MANIFEST_DIR` environment variable is required to locate descriptors.bin",
++    ));
+     let descriptor_path = root.join("descriptors.bin");
+     println!("cargo:rerun-if-changed={}", descriptor_path.display());
+ 

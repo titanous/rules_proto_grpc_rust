@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "prost_any",
+    srcs = [
+        "lib.rs",
+    ],
+    deps = [
+        "@crate_index//:pbjson-types",
+        "@crate_index//:prost",
+        "@crate_index//:static_init",
+    ],
+)
